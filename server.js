@@ -1,16 +1,18 @@
-const { createServer } = require("http");
-const { parse } = require("url");
-const next = require("next");
+const express = require("express");
+const path = require("path");
 
-const app = next({ dev: false });
-const handle = app.getRequestHandler();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.prepare().then(() => {
-  createServer((req, res) => {
-    const parsedUrl = parse(req.url, true);
-    handle(req, res, parsedUrl);
-  }).listen(3000, (err) => {
-    if (err) throw err;
-    console.log("> Ready on http://localhost:3000");
-  });
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname)));
+
+// Fallback to index.html for SPA routes or unmatched URLs
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
